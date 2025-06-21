@@ -4,8 +4,9 @@ import { NextApiRequest, NextApiResponse } from "next"
 
 
 const handler = async (request: NextApiRequest, response: NextApiResponse) => {
+
   const gptApiKey = process.env.NEXT_PUBLIC_GPT_API_KEY;
-  const gptUrl = "https://chatgpt-42.p.rapidapi.com/texttoimage";
+  const gptUrl = "https://chatgpt-42.p.rapidapi.com/texttoimage3";
 
   if (!gptApiKey || !gptUrl) {
     return response.status(500).json({ error: "API key or URL is missing in environment variables" });
@@ -15,23 +16,26 @@ const handler = async (request: NextApiRequest, response: NextApiResponse) => {
     const { prompt }: RequestProps = request.body;
 
     const res = await fetch(gptUrl, {
-      method: "POST",
-      body: JSON.stringify({
-        text: prompt,
-        width: WIDTH,
-        height: HEIGHT
-      }),
-      headers: {
-        'x-rapidapi-key': gptApiKey.trim(),
-        'x-rapidapi-host': 'chatgpt-42.p.rapidapi.com',
-        'Content-Type': 'application/json'
-      },
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-rapidapi-key": gptApiKey,
+          "x-rapidapi-host": "chatgpt-42.p.rapidapi.com"
+        },
+        body: JSON.stringify({
+            text: prompt, 
+            width: WIDTH,
+            height: HEIGHT,
+            n: 1,
+        }),
     });
 
     if (!res.ok) {
-      throw new Error("Failed to fetch from DALLE");
+        const errorText = await res.text();
+        console.error("DALLE API Error:", res.status, errorText);
+        return response.status(500).json({ error: "Failed to fetch image from DALLE" });
     }
-
+    
     const data = await res.json();
 
     return response.status(200).json({

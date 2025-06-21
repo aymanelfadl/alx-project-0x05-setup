@@ -11,12 +11,12 @@ const Home: React.FC = () => {
     setIsLoading(true);
     const resp = await fetch('/api/generate-image', {
       method: 'POST',
-      body: JSON.stringify({
-        prompt
-      }),
       headers: {
         'Content-type': 'application/json'
-      }
+      },
+      body: JSON.stringify({
+        prompt
+      })
     })
 
     if (!resp.ok) {
@@ -25,6 +25,7 @@ const Home: React.FC = () => {
     }
 
     const data = await resp.json()
+    setImageUrl(data.message);
     setIsLoading(false)
   };
 
